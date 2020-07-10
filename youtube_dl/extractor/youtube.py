@@ -3008,7 +3008,7 @@ class YoutubeChannelIE(YoutubePlaylistBaseInfoExtractor):
 
 class YoutubeUserIE(YoutubeChannelIE):
     IE_DESC = 'YouTube.com user videos (URL or "ytuser" keyword)'
-    _VALID_URL = r'(?:(?:https?://(?:\w+\.)?youtube\.com/(?:(?P<user>user|c)/)?(?!(?:attribution_link|watch|results|shared)(?:$|[^a-z_A-Z0-9-])))|ytuser:)(?!feed/)(?P<id>[A-Za-z0-9_-]+)'
+    _VALID_URL = r'(?:(?:https?://(?:\w+\.)?youtube\.com/(?:(?P<user>user|c)/)?(?!(?:attribution_link|watch|results|shared)(?:$|[^a-z_A-Z0-9-])))|ytuser:)(?!feed/)(?P<id>[-\w]+)'
     _TEMPLATE_URL = 'https://www.youtube.com/%s/%s/videos'
     IE_NAME = 'youtube:user'
 
@@ -3050,7 +3050,7 @@ class YoutubeUserIE(YoutubeChannelIE):
     @classmethod
     def suitable(cls, url):
         # Don't return True if the url can be extracted with other youtube
-        # extractor, the regex would is too permissive and it would match.
+        # extractor, the regex is too permissive and it would match.
         other_yt_ies = iter(klass for (name, klass) in globals().items() if name.startswith('Youtube') and name.endswith('IE') and klass is not cls)
         if any(ie.suitable(url) for ie in other_yt_ies):
             return False
@@ -3058,6 +3058,7 @@ class YoutubeUserIE(YoutubeChannelIE):
             return super(YoutubeUserIE, cls).suitable(url)
 
     def _build_template_url(self, url, channel_id):
+        url = compat_urllib_parse_unquote(url)
         mobj = re.match(self._VALID_URL, url)
         return self._TEMPLATE_URL % (mobj.group('user') or 'user', mobj.group('id'))
 
